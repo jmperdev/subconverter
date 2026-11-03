@@ -481,7 +481,14 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             if(!x.SelfIPv6.empty())
                 singleproxy["ipv6"] = x.SelfIPv6;
             if(!x.PreSharedKey.empty())
-                singleproxy["preshared-key"] = x.PreSharedKey;
+                singleproxy["pre-shared-key"] = x.PreSharedKey;
+            if(!x.AllowedIPs.empty())
+            {
+                YAML::Node allowed_ips;
+                for(const auto &allowed_ip : split(x.AllowedIPs, ","))
+                    allowed_ips.push_back(trim(allowed_ip));
+                singleproxy["allowed-ips"] = allowed_ips;
+            }
             if(!x.DnsServers.empty())
                 singleproxy["dns"] = x.DnsServers;
             if(x.Mtu > 0)
@@ -714,6 +721,9 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         default:
             continue;
         }
+
+        if(!x.ClientFingerprint.empty())
+            singleproxy["client-fingerprint"] = x.ClientFingerprint;
 
         // UDP is not supported yet in clash using snell
         // sees in https://dreamacro.github.io/clash/configuration/outbound.html#snell
